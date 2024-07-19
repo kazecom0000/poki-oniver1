@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>部屋</title>
+    <link rel=”icon” href=“../img/favicon.ico”>
+    <script>
+        let ws;
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const roomId = urlParams.get('roomId');
+            const isHost = urlParams.get('isHost') === 'true';
+
+            if (roomId) {
+                document.getElementById('roomId').textContent = roomId;
+                ws = new WebSocket('ws://10.8.100.156:8080');
+                ws.onopen = () => {
+                    ws.send(JSON.stringify({ type: 'join', roomId: roomId }));
+                };
+                ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'updateParticipants') {
+                        document.getElementById('participants').textContent = data.participants;
+                    } else if (data.type === 'startGame') {
+                        // ゲーム画面に遷移する処理
+                        window.location.href = `/onlinegame/online.html?roomId=${roomId}`;
+                    } else if (data.type === 'roomDeleted') {
+                        alert('部屋が解散されました。ホームに戻ります。');
+                        window.location.href = '/online.html';
+                    }
+                };
+            } else {
+                alert('部屋IDが見つかりません。');
+            }
+
+            if (isHost) {
+                document.getElementById('hostControls').style.display = 'block';
+                document.getElementById('startGameButton').addEventListener('click', () => {
+                    ws.send(JSON.stringify({ type: 'startGame', roomId: roomId }));
+                });
+                document.getElementById('deleteRoomButton').addEventListener('click', () => {
+                    ws.send(JSON.stringify({ type: 'deleteRoom', roomId: roomId }));
+                    // 部屋解散がサーバーに送信された後、ホーム画面に遷移する処理
+                    window.location.href = '/online.html';
+                });
+                document.getElementById('leaveRoomButton').style.display = 'none'; // ホストの場合は退出ボタンを非表示
+            } else {
+                document.getElementById('leaveRoomButton').addEventListener('click', () => {
+                    ws.send(JSON.stringify({ type: 'leaveRoom', roomId: roomId }));
+                    window.location.href = '/online.html';
+                });
+            }
+        });
+    </script>
+</head>
+<body>
+    <h1>部屋ID: <span id="roomId"></span></h1>
+    <p>参加者数: <span id="participants">0</span></p>
+    <div id="hostControls" style="display: none;">
+        <button id="startGameButton">ゲームを開始する</button>
+        <button id="deleteRoomButton">部屋を解散する</button>
+    </div>
+    <button id="leaveRoomButton">部屋を退出する</button>
+</body>
+</html>

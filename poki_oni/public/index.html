@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ジャンプゲーム - タイトル</title>
+    <link rel=”icon” href=“favicon.icom>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #titleScreen {
+            text-align: center;
+        }
+        .button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="titleScreen">
+        <h1>ジャンプゲーム</h1>
+        <button class="button" id="offlineMode">オフラインモード</button>
+        <button class="button" id="onlineMode">オンラインモード</button>
+    </div>
+    <script>
+        document.getElementById('offlineMode').addEventListener('click', () => {
+            window.location.href = 'game.html?mode=offline';
+        });
+        document.getElementById('onlineMode').addEventListener('click', () => {
+            window.location.href = 'online.html';
+        });
+    </script>
+</body>
+</html>
